@@ -99,4 +99,19 @@
   // Its important to note that everything in this script will be executed synchronously! This asyncFunction does not need to wait for any of the promises above to resolve before being invoked. The microtask queue will contain microtasks from both of these promises at the same time. When a promise is being waited, it will move on the microtask of the next promise and so on and so forth. At any given time, there will be 2 microtasks in the queue, one for each promise. (only 1 microtask exists in the queue per promise)
 </script>
 
+<!-- by value or by reference: -->
+<script>
+  let a = { foo: "bar" }
+  let b = a
+  // b => { foo: "bar" }
+
+  b.baz = "qux"
+  // a, b => { foo: "bar", baz: "qux" }
+
+  a = {}
+  // a => {}
+  // b => { foo: "bar", baz: "qux" }
+  // assigning a new object breaks the reference change
+</script>
+
 </html>
