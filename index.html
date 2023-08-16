@@ -27,23 +27,30 @@
 </script>
 
 <script>
+  //
   console.log(1);
 
+  // macrotaks 
   setTimeout(() => console.log(2));
 
+  // microtask
   Promise.resolve().then(() => console.log(3));
 
+  // microtask => macrotask
   Promise.resolve().then(() => setTimeout(() => console.log(4)));
 
+  // microtask
   Promise.resolve().then(() => console.log(5));
 
+  // macrotask
   setTimeout(() => console.log(6));
 
+  //
   console.log(7);
 </script>
 
 <script>
-  // since fetch supports promises, you can imagine it returns a Promise constuctor that triggers some raw HTTP API and passes it a callback that calls resolve() or reject() depending on the result of the HTTP request.
+  // since fetch supports promises, you can imagine it internally returns a Promise constuctor that triggers some raw HTTP API and passes it a callback that calls resolve() or reject() depending on the result of the HTTP request.
   // If it didn't support promises, we would pass it a callback to be executed instead, like the old days.
   let promise = fetch('https://jsonplaceholder.typicode.com/posts/1');
 
