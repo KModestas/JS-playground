@@ -50,15 +50,59 @@
 </script>
 
 <script>
+  // A single promise can have multiple then handlers attached to it
+  let p = Promise.resolve('p value');
+
+  // each of these handlers will be added to the microtask queue without waiting for one another and will recieve the same value from resolve(). They do NOT depend on each other.
+  p.then(value => {
+    console.log('first handler:', value); // => "first handler: p value
+  });
+
+  p.then(value => {
+    console.log('second handler:', value); // => "second handler: p value"
+  });
+
+
+  // ..or a single promise can have a single then handler
+  let p2 = Promise.resolve('p2 value');
+
+  // p2 has a single then handler. The handler returns a NEW promise which has its own then handler. The next handler in the chain will only be be executed and added to the microtask queue once the previous one has resolved. Each subsequent handler returns a NEW promise and is given a value from the previous handlers resolve function. Unlike the first example, they all depend on each other.
+  p2.then(value => {
+    console.log('first handler:', value); // => "first handler: p2 value
+
+    // Even if you dont explicitly return a Promise, the return value of your callback will be wrapped in a new Promise which will resolve or reject if an error is thrown.
+    return 'Value from first handler';
+  }).then(value => {
+    console.log('second handler:', value); // => "second handler: value from first handler"
+  });
+
+  // catch handlers also return a promise allowing them to be chained:
+  Promise.reject("Error")
+    .then(result => {
+      console.log("This won't be called");
+      return result;
+    })
+    .catch(error => {
+      console.log("Caught:", error); // Logs: "Caught: Error"
+      return "Recovered";  // Resolve the promise with "Recovered"
+    })
+    // this handler belongs to the new promise returned by catch:
+    .then(result => {
+      console.log("After recovery:", result); // Logs: "After recovery: Recovered"
+    })
+    .catch(error => {
+      console.log("This won't be called either");
+    });
+
   // since fetch supports promises, you can imagine it internally returns a Promise constuctor that triggers some raw HTTP API and passes it a callback that calls resolve() or reject() depending on the result of the HTTP request.
   // If it didn't support promises, we would directly pass it a callback to be executed instead, like the old days.
   let promise = fetch('https://jsonplaceholder.typicode.com/posts/1');
 
-  // when the promise is resolved, its handlers are triggered and their callbacks are added to the microtask queue. NOTE: only one microtask for each handler exists at any given time in the microtask queue (per Promise), once the microtask for a then handler is finished, the next one is added to the microtask queue and so on, they are not all added at once. 
   promise.then(res => {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
+    // returns a new promise:
     return res.json();
   }).then(data => {
     let promise2 = new Promise((resolve, reject) => {
@@ -67,7 +111,7 @@
       }, 1000);
     });
 
-    // A .then handler always returns a promise (if it doesn't it will be wrapped with resolve()), the next .then handler will be called only when that promise is resolved. This behavior is managed by the javascript engine itself as part of the Promise/A+ specification). It is able to observe these "inner promises" and only add the next handler to the microtask queue when the inner promise is resolved.
+    // When a then handler explicitly returns another promise, the promise returned by then will be synced up to this promise and will resolve with its value. If this promise has its own chain of promises, it will resolve with the value of the last promise in the chain. No matter how nested it gets, it always returns a new promise that resolves with the last value in the chain.
     return promise2
       .then(data => {
         console.log(value2); // logs "Promise2 resolved!"
