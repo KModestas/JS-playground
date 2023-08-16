@@ -51,7 +51,7 @@
 
 <script>
   // since fetch supports promises, you can imagine it internally returns a Promise constuctor that triggers some raw HTTP API and passes it a callback that calls resolve() or reject() depending on the result of the HTTP request.
-  // If it didn't support promises, we would pass it a callback to be executed instead, like the old days.
+  // If it didn't support promises, we would directly pass it a callback to be executed instead, like the old days.
   let promise = fetch('https://jsonplaceholder.typicode.com/posts/1');
 
   // when the promise is resolved, its handlers are triggered and their callbacks are added to the microtask queue. NOTE: only one microtask for each handler exists at any given time in the microtask queue (per Promise), once the microtask for a then handler is finished, the next one is added to the microtask queue and so on, they are not all added at once. 
@@ -59,7 +59,7 @@
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    return res.json();  // this returns a Promise
+    return res.json();
   }).then(data => {
     let promise2 = new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -67,9 +67,7 @@
       }, 1000);
     });
 
-    // since this then() handler also returns a promise, the next then() handler will be called only when that promise is resolved. This behavior is mangaed by the javascript engine itself as part of the Promise/A+ specification). It is able to observe these "inner promises" and only add the next handler to the microtask queue when the inner promise is resolved.
-    // also NOTE that this then handler does not remain on the microtask queue while waiting, it simply executes this code and is removed. When the promise resolves, the next then() handler is added to the microtask queue.
-    // essentially, you can think of this chain of handlers are being flat, they will all run in order, wether they are outer or inner.
+    // A .then handler always returns a promise (if it doesn't it will be wrapped with resolve()), the next .then handler will be called only when that promise is resolved. This behavior is managed by the javascript engine itself as part of the Promise/A+ specification). It is able to observe these "inner promises" and only add the next handler to the microtask queue when the inner promise is resolved.
     return promise2
       .then(data => {
         console.log(value2); // logs "Promise2 resolved!"
@@ -79,7 +77,7 @@
     .then(data => {
       console.log(data); // logs "Value from Promise2's .then()"
 
-      // since this then() handler does not return a promise (or anything for that matter), the next then() handler will be called immediately
+      // NOTE: most promise will schedule macrotasks such as an API call or setTimeout
       setTimeout(() => {
         console.log("Timeout completed!");
       }, 2000);
@@ -91,19 +89,20 @@
       console.log(`Fetch Error: ${error}`);
     });
 
-  // for all intents and purposes you can think of this behavior as being exactly the same with an async function that has multiple await statements, the await statements can be seen as then handlers that return promises. The async function is like the promise executor function.
+  // for all intents and purposes you can think of this behavior as being exactly the same with an async function that has multiple await statements, the await statements can be seen as then handlers that return promises. The main async function is like the promise executor function.
   async function asyncFunction() {
     console.log("Start");
     await new Promise(resolve => setTimeout(resolve, 1000));
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("End");
   }
-  // when an async function encounters an await, it creates a seperate continuation function with all code after the await. This continuation function is added to the microtask queue after the await promise is resolved. Esserntially the async function is split into multiple functions (otherwise callstack will never be empty if that async function remained on the callstack and it would block the thread)
+  // when an async function encounters an await, it runs that code as normal (promise executor function is invoked and its callback is added to microtask queue) and returns the value of the promise. At the same time, it also creates a seperate continuation function with all code after the first await. This continuation function is added to the microtask queue after that await promise is settled. Essentially the async function is split into multiple functions to be executed (and asyncFunction itself gets popped off the execution stack)
+  // remember each continuation function will return its promise
   // https://chat.openai.com/c/b5e48b84-d2b5-4cde-b88a-329eb9f4170f
 
   asyncFunction();
 
-  // Its important to note that everything in this script will be executed synchronously! This asyncFunction does not need to wait for any of the promises above to resolve before being invoked. The microtask queue will contain microtasks from both of these promises at the same time. When a promise is being waited, it will move on the microtask of the next promise and so on and so forth. At any given time, there will be 2 microtasks in the queue, one for each promise. (only 1 microtask exists in the queue per promise)
+  // Its important to note that everything in this script will be executed synchronously! This asyncFunction does not need to wait for any of the promises above to resolve before being invoked. The microtask queue will contain microtasks from both of these promises at the same time. When a promise is being waited, it will move on to the microtask of the next promise and so on and so forth. At any given time, there will be 2 microtasks in the queue, one for each promise. (only 1 microtask exists in the queue per promise)
 </script>
 
 <!-- by value or by reference: -->
