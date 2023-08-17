@@ -30,7 +30,7 @@
   //
   console.log(1);
 
-  // macrotaks 
+  // macrotask 
   setTimeout(() => console.log(2));
 
   // microtask
@@ -49,6 +49,8 @@
   console.log(7);
 </script>
 
+
+
 <script>
   // A single promise can have multiple then handlers attached to it
   let p = Promise.resolve('p value');
@@ -66,11 +68,11 @@
   // ..or a single promise can have a single then handler
   let p2 = Promise.resolve('p2 value');
 
-  // p2 has a single then handler. The handler returns a NEW promise which has its own then handler. The next handler in the chain will only be be executed and added to the microtask queue once the previous one has resolved. Each subsequent handler returns a NEW promise and is given a value from the previous handlers resolve function. Unlike the first example, they all depend on each other.
+  // p2 has a single then handler. The handler returns a NEW promise which has its own then handler. The next handler in the chain will only be be executed and added to the microtask queue once the previous one has resolved. Each subsequent handler returns a NEW promise and is given a value from the previous handlers resolve function. Unlike the first example, they all depend on each other. Ultimately the return value of this chain will be the Promise object of the last promise in the chain
   p2.then(value => {
     console.log('first handler:', value); // => "first handler: p2 value
 
-    // Even if you dont explicitly return a Promise, the return value of your callback will be wrapped in a new Promise which will resolve or reject if an error is thrown.
+    // Even if you dont explicitly return a Promise, then will return a new promise that immediately resolves with the return value, or rejects if an error is thrown
     return 'Value from first handler';
   }).then(value => {
     console.log('second handler:', value); // => "second handler: value from first handler"
@@ -98,26 +100,28 @@
   // If it didn't support promises, we would directly pass it a callback to be executed instead, like the old days.
   let promise = fetch('https://jsonplaceholder.typicode.com/posts/1');
 
+  // .then ALWAYS returns a NEW promise
   promise.then(res => {
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
     // returns a new promise:
     return res.json();
-  }).then(data => {
-    let promise2 = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve("Promise2 resolved!");
-      }, 1000);
-    });
-
-    // When a then handler explicitly returns another promise, the promise returned by then will be synced up to this promise and will resolve with its value. If this promise has its own chain of promises, it will resolve with the value of the last promise in the chain. No matter how nested it gets, it always returns a new promise that resolves with the last value in the chain.
-    return promise2
-      .then(data => {
-        console.log(value2); // logs "Promise2 resolved!"
-        return "Value from Promise2's .then()";
-      });
   })
+    // When your callback explicitly returns a promise, the new promise created and returned by .then will be synced up to your promise and will resolve with its value. If your promise has its own chain of promises, it will resolve with the value of the last promise in the chain. No matter how nested it gets, .then will always returns a new promise that resolves with the last value in your chain.
+    .then(data => {
+      let promise2 = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve("Promise2 resolved!");
+        }, 1000);
+      });
+
+      return promise2
+        .then(data => {
+          console.log(value2); // logs "Promise2 resolved!"
+          return "Value from Promise2's .then()";
+        });
+    })
     .then(data => {
       console.log(data); // logs "Value from Promise2's .then()"
 
@@ -133,20 +137,35 @@
       console.log(`Fetch Error: ${error}`);
     });
 
-  // for all intents and purposes you can think of this behavior as being exactly the same with an async function that has multiple await statements, the await statements can be seen as then handlers that return promises. The main async function is like the promise executor function.
+  // just like with .then, the return value of an async function will be a new promise that either resolves with the return value or rejects if an error is thrown
   async function asyncFunction() {
     console.log("Start");
+    // NOTE: the body of the promises will be executed immediately (scheduling the setTimeout)
     await new Promise(resolve => setTimeout(resolve, 1000));
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("End");
+    // return Promise.resolve(undefined) => in this case you can think of it as ultimately returning this
   }
-  // when an async function encounters an await, it runs that code as normal (promise executor function is invoked and its callback is added to microtask queue) and returns the value of the promise. At the same time, it also creates a seperate continuation function with all code after the first await. This continuation function is added to the microtask queue after that await promise is settled. Essentially the async function is split into multiple functions to be executed (and asyncFunction itself gets popped off the execution stack)
-  // remember each continuation function will return its promise
-  // https://chat.openai.com/c/b5e48b84-d2b5-4cde-b88a-329eb9f4170f
 
-  asyncFunction();
+  // since an async function also returns a promise, you can chain handlers onto it (these will run once the entire body of the async function completes and it finally returns.
+  asyncFunction()
+    .then(() => {
+      console.log('asyncFunction then')
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 
-  // Its important to note that everything in this script will be executed synchronously! This asyncFunction does not need to wait for any of the promises above to resolve before being invoked. The microtask queue will contain microtasks from both of these promises at the same time. When a promise is being waited, it will move on to the microtask of the next promise and so on and so forth. At any given time, there will be 2 microtasks in the queue, one for each promise. (only 1 microtask exists in the queue per promise)
+  // Async Function Flow:
+  // - when the javascript engine encounters an await, it starts executing synchronously until it encounters an await
+
+  // - it executes the awaited promise and waits for it to resolve.
+
+  // - while waiting, the function is released from the callstack allowing the rest of the script outside the function to continue executing (and the event loop to process other events). The engine remembers the exact execution context of the async function and which line to resume from. When the awaited promise resolves, the engine schedules it's execution context to continue running by adding it to the microtask queue.
+
+  // Once the callstack is empty again, the async function is picked up from the microtask queue and execution of it's saved context is resumed"
+
+  // (Dont worry about the exact details of this works. how async / await is actually handled is an implementationd detail of the engine)
 </script>
 
 <!-- by value or by reference: -->
