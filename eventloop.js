@@ -60,3 +60,8 @@ process.on('exit', () => {
 // check whats keeping your event loop from exiting the process:
 // process._getActiveHandles()
 // process._getActiveRequests()
+
+// NOTE: in reality most of these functions will be invoked as part of another callback E.g:
+// if using a cron library you will likely write your code which is ultimately the callback of a setInterval [Timer]
+// if creating a web server you will write code to handle request callbacks [I/O Poll]
+// ...Even inside these callbacks will be other callbacks e.g. inside your cron you may read a File (I/O Poll) and then trigger some Promise (microtask)
