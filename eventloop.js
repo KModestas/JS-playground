@@ -10,7 +10,7 @@ const closeEventsQueue = []; // callbacks from close / exit events
 const microtasksQueue = []; // Promise callbacks
 const nextTickQueue = [] // process.nextTick() callbacks
 
-// Any Active handlers or requests would be tracked by node.js and aslong as there are any, node will not terminate the process, (until they are closed)
+// Any Active handlers or requests would be tracked by node.js, node will not terminate the process (until they are closed)
 const activeHandlers = [] // Open sockets, listening to servers or timers that are scheduled to run but their time hasn't come yet.
 const activeRequests = [] // Async operations such as reading from a file which are in progress and haven't completed yet.
 
