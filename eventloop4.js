@@ -8,8 +8,13 @@ fs.readFile(__filename, () => {
 })
 
 // ...this is why setImmediate is logged before readFile
-setImmediate(async () => {
+setImmediate(() => {
   console.log('setImmediate');
+
+// other setImmediates that are scheduled in the check seem to be executed immediately in the current cycle before moving on
+//  setImmediate(() =>  console.log('inner setImmediate'))
+//  setImmediate(() =>  console.log('inner setImmediate'))
+//  setImmediate(() =>  console.log('inner setImmediate'))
 })
 
 // [Timer] schedules setImmediate and readFile then does heavy work to gaurantee all callbacks will in their queues
@@ -20,7 +25,7 @@ setTimeout(() => {
   })
 
   // [Check] phase executes the setImmedate callback then event loop continues where readFile callback is executed in the next cycle
-  setImmediate(async () => {
+  setImmediate(() => {
     console.log('setImmediate 2');
   })
 

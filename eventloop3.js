@@ -27,7 +27,6 @@ setImmediate(async () => {
   
   // 4. After [Check] is [Timer] phase again but due to race condition, this callback might not run next but instead After [Poll]
   setTimeout(() => console.log('Check - setTimeout'), 0);
-  setImmediate(() => console.log('Check - setImmediate'));
 
   // 5. Promise is executed which schedules the setTimeout, this entire function will be popped off the execution stack and will resume when then promise resolves inside the setTimeout callback
   await new Promise(resolve => setTimeout(resolve, 1000))
