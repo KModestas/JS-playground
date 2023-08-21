@@ -9,7 +9,7 @@ class ClassLifecycle extends Component {
     };
   }
 
-  // Called before every single render (even initial)
+  // called before every single render (even initial)
   static getDerivedStateFromProps(nextProps, nextState) {
     console.log("2. ** getDerivedStateFromProps()", nextProps, nextState);
     // Return an object to update state or null to not update state
@@ -21,6 +21,10 @@ class ClassLifecycle extends Component {
 
     // comment this in to trigger the rest of the life cycle methods:
     // this.setState({ counter: 1 });
+
+    // if setState is called it will call getDerivedStateFromProps next since it gets called before each render, however
+    // shouldComponentUpdate runs after which may stop the render if it returns false.
+    // if it doesn't stop the render: getSnapshotBeforeUpdate => componentDidUpdate
   }
 
   shouldComponentUpdate(nextProps, nextState) {
