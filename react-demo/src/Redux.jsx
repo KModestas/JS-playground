@@ -45,6 +45,7 @@ const mapDispatchToProps = (dispatch) => ({
   decrement: () => dispatch(decrement()),
 });
 
+// the connect HOC also subscribes the component so that it re-renders whenever the global redux state is updated and the state in mapStateToProps has changed.
 export const ConnectedCounter = connect(
   mapStateToProps,
   mapDispatchToProps

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider, connect } from "react-redux";
+import { Provider } from "react-redux";
 
 import FunctionLifecycle from "./FunctionLifecycle";
 import ClassLifecycle from "./ClassLifecycle";
