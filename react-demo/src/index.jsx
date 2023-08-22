@@ -10,8 +10,8 @@ import { store, ReduxCounter } from "./Redux";
 
 const App = () => (
   <Provider store={store}>
-    <SyntheticEvents />
-    {/* <ReduxCounter /> */}
+    {/* <SyntheticEvents /> */}
+    <ReduxCounter />
     {/* <ClassLifecycle />
     <FunctionLifecycle /> */}
   </Provider>
