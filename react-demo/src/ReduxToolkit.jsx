@@ -1,59 +1,53 @@
-// import React from "react";
-// import ReactDOM from "react-dom";
-// import { configureStore, createSlice } from "@reduxjs/toolkit";
-// import { Provider, connect } from "react-redux";
+// Required imports
+import React, { useState } from "react";
+import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { useDispatch, useSelector } from "react-redux";
 
-// // Slice
-// const counterSlice = createSlice({
-//   name: "counter",
-//   initialState: 0,
-//   reducers: {
-//     increment: (state, action) => state + action.payload,
-//     decrement: (state, action) => state - action.payload,
-//   },
-// });
+// 1. Create a slice of the global state
+const counterSlice = createSlice({
+  name: "counter", // Used as a prefix for generated action types e.g. counter_increment
+  initialState: 0, // Initial state value for this slice
+  reducers: {
+    increment: (state) => state + 1,
+    decrement: (state) => state - 1,
+    addByAmount: (state, action) => state + action.payload,
+  },
+});
 
-// const { actions, reducer } = counterSlice;
-// const { increment, decrement } = actions;
+// Exporting actions for use within components
+export const { increment, decrement, addByAmount } = counterSlice.actions;
 
-// // Store
-// export const store = configureStore({
-//   reducer: {
-//     counter: reducer,
-//   },
-// });
+// 2. Set up the Redux store
+export const store = configureStore({
+  reducer: {
+    counter: counterSlice.reducer, // Connect our slice reducer to the store
+  },
+});
 
-// // Counter Component
-// const Counter = ({ count, increment, decrement }) => (
-//   <div>
-//     <p>Count: {count}</p>
-//     <button onClick={() => increment(1)}>Increment by 1</button>
-//     <button onClick={() => increment(5)}>Increment by 5</button>
-//     <button onClick={() => decrement(1)}>Decrement by 1</button>
-//     <button onClick={() => decrement(5)}>Decrement by 5</button>
-//   </div>
-// );
+// 3. Create a React component that interacts with the Redux store
+export function ReduxToolkitCounter() {
+  // Access the specific slice of state. this hook is basically like connect() + mapStateToProps, it subscribes to changes then re-renders, passing your component the new state
+  const count = useSelector((state) => state.counter);
+  // Get the dispatch function to dispatch actions to the Redux store
+  const dispatch = useDispatch();
+  // Local state for the input amount
+  const [amount, setAmount] = useState(1);
 
-// // mapStateToProps and mapDispatchToProps
-// const mapStateToProps = (state) => ({
-//   count: state.counter,
-// });
-
-// const mapDispatchToProps = {
-//   increment,
-//   decrement,
-// };
-
-// export const ConnectedCounter = connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(Counter);
-
-// // App
-// const App = () => (
-//   <Provider store={store}>
-//     <ConnectedCounter />
-//   </Provider>
-// );
-
-// ReactDOM.render(<App />, document.getElementById("root"));
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => dispatch(increment())}>Increment</button>
+      <button onClick={() => dispatch(decrement())}>Decrement</button>
+      <div>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+        <button onClick={() => dispatch(addByAmount(amount))}>
+          Add Amount
+        </button>
+      </div>
+    </div>
+  );
+}
