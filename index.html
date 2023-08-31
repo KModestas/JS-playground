@@ -26,6 +26,21 @@
   varAndLetScope();
 </script>
 
+<!-- by value or by reference: -->
+<script>
+  let a = { foo: "bar" }
+  let b = a
+  // b => { foo: "bar" }
+
+  b.baz = "qux"
+  // a, b => { foo: "bar", baz: "qux" }
+
+  a = {}
+  // a => {}
+  // b => { foo: "bar", baz: "qux" }
+  // assigning a new object breaks the reference change
+</script>
+
 <script>
   //
   console.log(1);
@@ -125,7 +140,6 @@
     .then(data => {
       console.log(data); // logs "Value from Promise2's .then()"
 
-      // NOTE: most promise will schedule macrotasks such as an API call or setTimeout
       setTimeout(() => {
         console.log("Timeout completed!");
       }, 2000);
@@ -144,7 +158,7 @@
     await new Promise(resolve => setTimeout(resolve, 1000));
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("End");
-    // return Promise.resolve(undefined) => in this case you can think of it as ultimately returning this
+    // return Promise.resolve(undefined) => in this case you can think of this being the return value
   }
 
   // since an async function also returns a promise, you can chain handlers onto it (these will run once the entire body of the async function completes and it finally returns.
@@ -157,30 +171,15 @@
     })
 
   // Async Function Flow:
-  // - when the javascript engine encounters an await, it starts executing synchronously until it encounters an await
+  // - async func body is executed synchronously until it encounters an await
 
   // - it executes the awaited promise and waits for it to resolve.
 
-  // - while waiting, the function is released from the callstack allowing the rest of the script outside the function to continue executing (and the event loop to process other events). The engine remembers the exact execution context of the async function and which line to resume from. When the awaited promise resolves, the engine schedules it's execution context to continue running by adding it to the microtask queue.
+  // - while waiting, the function is released from the callstack allowing the rest of the script outside the function to continue executing (and the event loop to process other events). The engine remembers the exact execution context of the async function and which line to resume from when the awaited promise resolves.
 
-  // Once the callstack is empty again, the async function is picked up from the microtask queue and execution of it's saved context is resumed"
+  // the cycle continues for every await that is encountered inside of it
 
   // (Dont worry about the exact details of this works. how async / await is actually handled is an implementationd detail of the engine)
-</script>
-
-<!-- by value or by reference: -->
-<script>
-  let a = { foo: "bar" }
-  let b = a
-  // b => { foo: "bar" }
-
-  b.baz = "qux"
-  // a, b => { foo: "bar", baz: "qux" }
-
-  a = {}
-  // a => {}
-  // b => { foo: "bar", baz: "qux" }
-  // assigning a new object breaks the reference change
 </script>
 
 </html>
