@@ -51,10 +51,42 @@
       padding: 10px;
       text-align: center;
     }
+
+    /* ******************************** */
+
+    .animated-div {
+      width: 100px;
+      height: 100px;
+      background-color: red;
+
+      /* Transitions */
+      transition: transform 0.3s ease;
+
+      /* Animations */
+      animation: colorChange 3s infinite alternate;
+    }
+
+    /* Transformations */
+    .animated-div:hover {
+      transform: scale(1.5);
+    }
+
+    /* Keyframes for Animations */
+    @keyframes colorChange {
+      0% {
+        background-color: red;
+      }
+
+      100% {
+        background-color: blue;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div class="animated-div"></div>
+
   <!-- Grid container -->
   <div class="grid-container">
     <!-- Elements inside the grid -->
