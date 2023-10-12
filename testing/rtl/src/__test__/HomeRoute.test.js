@@ -3,10 +3,13 @@ import { MemoryRouter } from 'react-router-dom'
 import HomeRoute from '../routes/HomeRoute'
 import { createServer } from '../test/server'
 
+// Context: this app renders most popular github repos for a number of languages.
+
 createServer([
   {
     path: '/api/repositories',
     res: req => {
+      // we get the repos for each language from the API by adding the langugae as part of the query string
       const language = req.url.searchParams.get('q').split('language:')[1]
       return {
         items: [

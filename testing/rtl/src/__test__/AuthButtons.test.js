@@ -6,17 +6,22 @@ import AuthButtons from '../components/auth/AuthButtons'
 
 async function renderComponent() {
   render(
+    // disable swr cache so that auth state is cleared between tests
     <SWRConfig value={{ provider: () => new Map() }}>
       <MemoryRouter>
         <AuthButtons />
       </MemoryRouter>
     </SWRConfig>
   )
+
+  // findAllByRole will call Act() under the hood.
+  // we wait for links to be rendered because when they are, we know all state updates in our component heirarchy have finished
+  // the rest of our test can then safetly proceed as the component will change.
   await screen.findAllByRole('link')
 }
 
 describe('when user is signed in', () => {
-  // createServer() ---> GET '/api/user' ---> { user: { id: 3, email: 'asdf@a.com' }}
+  // call our custom createServer helper to mock specific API endpoints for the duration of these tests
   createServer([
     {
       path: '/api/user',
@@ -53,7 +58,6 @@ describe('when user is signed in', () => {
 })
 
 describe('when user is not signed in', () => {
-  // createServer() ---> GET '/api/user' ---> { user: null }
   createServer([
     {
       path: '/api/user',
