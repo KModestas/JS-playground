@@ -7,13 +7,15 @@ import ClassLifecycle from './ClassLifecycle'
 import SyntheticEvents from './SyntheticEvents'
 
 // import { store, ReduxCounter } from "./Redux";
-import { store, ReduxToolkitCounter } from './ReduxToolkit'
+
+import { ReduxToolkit } from './ReduxToolkit'
+import { store } from './redux-toolkit/store'
 
 const App = () => (
   <Provider store={store}>
     {/* <SyntheticEvents /> */}
     {/* <ReduxCounter /> */}
-    <ReduxToolkitCounter />
+    <ReduxToolkit />
     {/* <ClassLifecycle />
     <FunctionLifecycle /> */}
   </Provider>
