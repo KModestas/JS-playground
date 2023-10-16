@@ -20,7 +20,7 @@ export const fetchUsers = createAsyncThunk('users/fetchData', async () => {
   return data
 })
 // 3 actions will automatically be created using the string we defined.
-// - users/fetchData/pneding => will be disaptched as soon as dispatch our fetchUsers thunk
+// - users/fetchData/pending => will be disaptched as soon as dispatch our fetchUsers thunk
 // - users/fetchData/rejected => will be dispatched if the promise returned from our function rejects
 // - users/fetchData/fulfilled =>  will be dispatched if the promise returned from our function resolves
 
@@ -41,7 +41,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        // data returned from your fulfilled thunk we automatically be assigned to the payload property:
+        // data returned from your fulfilled thunk will automatically be assigned to the payload property:
         state.data = action.payload
       })
       .addCase(fetchUsers.rejected, (state, action) => {
