@@ -1,12 +1,12 @@
-import { GoTrashcan } from 'react-icons/go';
-import { useRemovePhotoMutation } from '../store';
+import { GoTrashcan } from 'react-icons/go'
+import { useRemovePhotoMutation } from '../../store'
 
 function PhotosListItem({ photo }) {
-  const [removePhoto] = useRemovePhotoMutation();
+  const [removePhoto] = useRemovePhotoMutation()
 
   const handleRemovePhoto = () => {
-    removePhoto(photo);
-  };
+    removePhoto(photo)
+  }
 
   return (
     <div onClick={handleRemovePhoto} className="relative cursor-pointer m-2">
@@ -15,7 +15,7 @@ function PhotosListItem({ photo }) {
         <GoTrashcan className="text-3xl" />
       </div>
     </div>
-  );
+  )
 }
 
-export default PhotosListItem;
+export default PhotosListItem
