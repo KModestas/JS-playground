@@ -8,7 +8,6 @@
 </head>
 
 <body>
-
 </body>
 
 <!-- When this script is executed by the browser, it will get its own Global Execution content (GEC), then each function call will get its own Function Execution context (FEC). GEC will always be at the bottom of the callstack (LIFO). -->
@@ -38,7 +37,7 @@
   a = {}
   // a => {}
   // b => { foo: "bar", baz: "qux" }
-  // assigning a new object breaks the reference change
+  // assigning a new object breaks the reference 
 </script>
 
 <script>
@@ -64,8 +63,6 @@
   console.log(7);
 </script>
 
-
-
 <script>
   // A single promise can have multiple then handlers attached to it
   let p = Promise.resolve('p value');
@@ -78,7 +75,6 @@
   p.then(value => {
     console.log('second handler:', value); // => "second handler: p value"
   });
-
 
   // ..or a single promise can have a single then handler
   let p2 = Promise.resolve('p2 value');
